@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invetaris Fakultas Psikologi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        #navMenu.collapsed {
+            width: 80px;
+        }
+        #navMenu.collapsed .nav-text {
+            display: none;
+        }
+        #navMenu.collapsed ~ #mainContent {
+            margin-left: 80px;
+        }
+        .table-container {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .qr-code {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div id="navMenu" class="sidebar bg-indigo-900 text-white w-64 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-indigo-800">
+                <h1 class="text-xl font-bold nav-text">Invetaris Fakultas Psikologi</h1>
+                <button id="toggleMenu" class="text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex-1 overflow-y-auto">
+                <ul class="py-2">
+                    <li class="px-4 py-3 hover:bg-indigo-800 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span class="ml-3 nav-text">Dashboard</span>
+                    </li>
+                    <li class="px-4 py-3 bg-indigo-800 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span class="ml-3 nav-text">Inventaris</span>
+                    </li>
+                    <li class="px-4 py-3 hover:bg-indigo-800 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <span class="ml-3 nav-text">Laporan</span>
+                    </li>
+                    <li class="px-4 py-3 hover:bg-indigo-800 cursor-pointer flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="ml-3 nav-text">QR Generator</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-indigo-800">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-indigo-700 flex items-center justify-center text-white font-bold">AD</div>
+                    <div class="ml-3 nav-text">
+                        <div class="font-medium">Admin</div>
+                        <div class="text-xs text-indigo-300">Fakultas Psikologi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Inventaris Barang</h2>
+                    <div class="flex space-x-4">
+                        <button id="exportExcel" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export Excel
+                        </button>
+                        <button id="exportPDF" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export PDF
+                        </button>
+                        <button id="addItemBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Tambah Item
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <!-- Filters -->
+                <div class="bg-white p-4 rounded-lg shadow mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
+                            <input type="text" id="searchInput" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                            <select id="locationFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Semua Lokasi</option>
+                                <option value="Ruang 1.1">Ruang 1.1</option>
+                                <option value="Ruang 1.2">Ruang 1.2</option>
+                                <option value="Ruang 1.3">Ruang 1.3</option>
+                                <option value="Ruang 1.4">Ruang 1.4</option>
+								<option value="Ruang 2.1">Ruang 2.1</option>
+								<option value="Ruang 2.2">Ruang 2.2</option>
+								<option value="Ruang 2.3">Ruang 2.3</option>
+								<option value="Ruang 2.4">Ruang 2.4</option>
+								<option value="Ruang 2.5">Ruang 2.5</option>
+								<option value="Ruang 2.6">Ruang 2.6</option>
+								<option value="Ruang 4.1">Ruang 4.1</option>
+								<option value="Ruang 4.2">Ruang 4.2</option>
+								<option value="Ruang 4.3">Ruang 4.3</option>
+								<option value="Ruang 4.4">Ruang 4.4</option>
+								<option value="Ruang 4.5">Ruang 4.5</option>
+								<option value="Ruang Gudang">Ruang Gudang</option>
+								<option value="Ruang Sekretariat">Ruang Sekretariat</option>
+								<option value="Ruang Rapat">Ruang Rapat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
+                            <select id="conditionFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Semua Kondisi</option>
+                                <option value="Baru">Baru</option>
+                                <option value="Terpakai">Terpakai</option>
+                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                <option value="Rusak Berat">Rusak Berat</option>
+								<option value="Dalam Perbaikan">Dalam Perbaikan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="categoryFilter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Semua Kategori</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="ATK">ATK</option>
+                                <option value="Peralatan Lain-lain">Peralatan Lain-lain</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="table-container">
+                        <table class="min-w-full divide-y divide-gray-200" id="inventoryTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kondisi</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR Code</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="inventoryTableBody">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex items-center justify-between mt-4">
+                    <div class="text-sm text-gray-700">
+                        Showing <span id="startItem">0</span> to <span id="endItem">0</span> of <span id="totalItems">0</span> items
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="prevPage" class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" disabled>Previous</button>
+                        <div id="pageNumbers" class="flex space-x-1"></div>
+                        <button id="nextPage" class="px-3 py-1 border rounded-md text-sm disabled:opacity-50" disabled>Next</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="itemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-screen overflow-y-auto">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Tambah Item</h3>
+                <button id="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="itemForm">
+                    <input type="hidden" id="itemId">
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label for="itemName" class="block text-sm font-medium text-gray-700">Nama Item *</label>
+                            <input type="text" id="itemName" name="itemName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" required>
+                        </div>
+                        <div>
+                            <label for="itemCategory" class="block text-sm font-medium text-gray-700">Kategori *</label>
+                            <select id="itemCategory" name="itemCategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" required>
+                                <option value="">Pilih kategori</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="ATK">ATK</option>
+                                <option value="Peralatan Lain-lain">Peralatan Lain-lain</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="itemDescription" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                            <textarea id="itemDescription" name="itemDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="itemQuantity" class="block text-sm font-medium text-gray-700">Jumlah *</label>
+                                <input type="number" id="itemQuantity" name="itemQuantity" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" required>
+                            </div>
+                            <div>
+                                <label for="itemUnit" class="block text-sm font-medium text-gray-700">Unit</label>
+                                <input type="text" id="itemUnit" name="itemUnit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" placeholder="e.g., pcs, kg, box">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="itemLocation" class="block text-sm font-medium text-gray-700">Lokasi *</label>
+                                <select id="itemLocation" name="itemLocation" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" required>
+                                <option value="">Semua Lokasi</option>
+                                <option value="Ruang 1.1">Ruang 1.1</option>
+                                <option value="Ruang 1.2">Ruang 1.2</option>
+                                <option value="Ruang 1.3">Ruang 1.3</option>
+                                <option value="Ruang 1.4">Ruang 1.4</option>
+								<option value="Ruang 2.1">Ruang 2.1</option>
+								<option value="Ruang 2.2">Ruang 2.2</option>
+								<option value="Ruang 2.3">Ruang 2.3</option>
+								<option value="Ruang 2.4">Ruang 2.4</option>
+								<option value="Ruang 2.5">Ruang 2.5</option>
+								<option value="Ruang 2.6">Ruang 2.6</option>
+								<option value="Ruang 4.1">Ruang 4.1</option>
+								<option value="Ruang 4.2">Ruang 4.2</option>
+								<option value="Ruang 4.3">Ruang 4.3</option>
+								<option value="Ruang 4.4">Ruang 4.4</option>
+								<option value="Ruang 4.5">Ruang 4.5</option>
+								<option value="Ruang Gudang">Ruang Gudang</option>
+								<option value="Ruang Sekretariat">Ruang Sekretariat</option>
+								<option value="Ruang Rapat">Ruang Rapat</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="itemCondition" class="block text-sm font-medium text-gray-700">Condition *</label>
+                                <select id="itemCondition" name="itemCondition" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" required>
+                                    <option value="">Semua Kondisi</option>
+									<option value="Baru">Baru</option>
+									<option value="Terpakai">Terpakai</option>
+									<option value="Rusak Ringan">Rusak Ringan</option>
+									<option value="Rusak Berat">Rusak Berat</option>
+									<option value="Dalam Perbaikan">Dalam Perbaikan</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="itemPurchaseDate" class="block text-sm font-medium text-gray-700">Pembelian</label>
+                            <input type="date" id="itemPurchaseDate" name="itemPurchaseDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="itemSupplier" class="block text-sm font-medium text-gray-700">Supplier</label>
+                            <input type="text" id="itemSupplier" name="itemSupplier" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label for="itemNotes" class="block text-sm font-medium text-gray-700">Catatan</label>
+                            <textarea id="itemNotes" name="itemNotes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-3 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" id="cancelItem" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" id="saveItem" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">QR Code for <span id="qrItemName"></span></h3>
+                <button id="closeQrModal" class="text-gray-400 hover:text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="text-center">
+                <div id="qrCodeContainer" class="flex justify-center mb-4"></div>
+                <p class="text-sm text-gray-500 mb-4">Scan this QR code to view inventory details</p>
+                <div class="flex justify-center space-x-2">
+                    <button id="downloadQrPng" class="px-3 py-1 bg-blue-600 text-white rounded text-sm">Download PNG</button>
+                    <button id="downloadQrSvg" class="px-3 py-1 bg-purple-600 text-white rounded text-sm">Download SVG</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize inventory data
+        let inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+
+        // Initialize QR Code generator
+        const qrcode = qrcodeGenerator(0, 'L');
+        
+        // DOM Elements
+        const inventoryTableBody = document.getElementById('inventoryTableBody');
+        const itemModal = document.getElementById('itemModal');
+        const qrModal = document.getElementById('qrModal');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const closeModal = document.getElementById('closeModal');
+        const closeQrModal = document.getElementById('closeQrModal');
+        const cancelItem = document.getElementById('cancelItem');
+        const saveItem = document.getElementById('saveItem');
+        const itemForm = document.getElementById('itemForm');
+        const exportExcel = document.getElementById('exportExcel');
+        const exportPDF = document.getElementById('exportPDF');
+        const searchInput = document.getElementById('searchInput');
+        const locationFilter = document.getElementById('locationFilter');
+        const conditionFilter = document.getElementById('conditionFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const startItem = document.getElementById('startItem');
+        const endItem = document.getElementById('endItem');
+        const totalItems = document.getElementById('totalItems');
+        const pageNumbers = document.getElementById('pageNumbers');
+        const downloadQrPng = document.getElementById('downloadQrPng');
+        const downloadQrSvg = document.getElementById('downloadQrSvg');
+        const qrItemName = document.getElementById('qrItemName');
+
+        // Toggle sidebar
+        document.getElementById('toggleMenu').addEventListener('click', function() {
+            document.getElementById('navMenu').classList.toggle('collapsed');
+        });
+
+        // Event Listeners
+        addItemBtn.addEventListener('click', () => showModal());
+        closeModal.addEventListener('click', () => hideModal());
+        cancelItem.addEventListener('click', () => hideModal());
+        closeQrModal.addEventListener('click', () => hideQrModal());
+        saveItem.addEventListener('click', saveItemHandler);
+        exportExcel.addEventListener('click', exportToExcel);
+        exportPDF.addEventListener('click', exportToPDF);
+        searchInput.addEventListener('input', filterItems);
+        locationFilter.addEventListener('change', filterItems);
+        conditionFilter.addEventListener('change', filterItems);
+        categoryFilter.addEventListener('change', filterItems);
+        prevPage.addEventListener('click', goToPrevPage);
+        nextPage.addEventListener('click', goToNextPage);
+        downloadQrPng.addEventListener('click', downloadQrAsPng);
+        downloadQrSvg.addEventListener('click', downloadQrAsSvg);
+
+        // Generate sample data if empty
+        if (inventoryData.length === 0) {
+            generateSampleData();
+        }
+
+        // Initial render
+        renderInventoryTable();
+
+        function generateSampleData() {
+            const categories = ['Electronics', 'Furniture', 'Office Supplies', 'Tools'];
+            const locations = ['Warehouse A', 'Warehouse B', 'Office', 'Lab'];
+            const conditions = ['New', 'Used', 'Damaged', 'For Repair'];
+            
+            for (let i = 1; i <= 50; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const location = locations[Math.floor(Math.random() * locations.length)];
+                const condition = conditions[Math.floor(Math.random() * conditions.length)];
+                
+                inventoryData.push({
+                    id: `INV-${(1000 + i).toString().padStart(4, '0')}`,
+                    name: `${category} Item ${i}`,
+                    description: `Sample ${category.toLowerCase()} item description ${i}`,
+                    category: category,
+                    quantity: Math.floor(Math.random() * 100) + 1,
+                    unit: i % 2 === 0 ? 'pcs' : 'box',
+                    location: location,
+                    condition: condition,
+                    purchaseDate: new Date(Date.now() - Math.floor(Math.random() * 31536000000)).toISOString().split('T')[0],
+                    supplier: `Supplier ${Math.floor(Math.random() * 5) + 1}`,
+                    notes: i % 3 === 0 ? 'Important notes here' : '',
+                    lastUpdated: new Date().toISOString()
+                });
+            }
+            
+            saveToLocalStorage();
+        }
+
+        function renderInventoryTable(data = inventoryData) {
+            inventoryTableBody.innerHTML = '';
+            
+            // Apply pagination
+            const filteredData = [...data];
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+            
+            // Update pagination info
+            startItem.textContent = startIndex + 1;
+            endItem.textContent = endIndex;
+            totalItems.textContent = filteredData.length;
+            
+            // Enable/disable pagination buttons
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = endIndex >= filteredData.length;
+            
+            // Render page numbers
+            renderPageNumbers(filteredData.length);
+            
+            if (paginatedData.length === 0) {
+                inventoryTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No items found</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            paginatedData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.category}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.quantity} ${item.unit || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.location}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 py-1 text-xs rounded-full ${
+                            item.condition === 'New' ? 'bg-green-100 text-green-800' :
+                            item.condition === 'Used' ? 'bg-blue-100 text-blue-800' :
+                            item.condition === 'Damaged' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }">${item.condition}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button class="qr-code-btn" data-id="${item.id}" title="Generate QR Code">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </button>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-id="${item.id}" class="text-indigo-600 hover:text-indigo-900 mr-2 edit-btn">Edit</button>
+                        <button data-id="${item.id}" class="text-red-600 hover:text-red-900 delete-btn">Delete</button>
+                    </td>
+                `;
+                inventoryTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to dynamically created buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    editItem(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    deleteItem(id);
+                });
+            });
+            
+            document.querySelectorAll('.qr-code-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.target.closest('button').getAttribute('data-id');
+                    generateQrCode(id);
+                });
+            });
+        }
+        
+        function renderPageNumbers(totalItems) {
+            pageNumbers.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Always show first page
+            addPageNumber(1);
+            
+            // Show ellipsis if current page is far from first page
+            if (currentPage > 3) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-1';
+                ellipsis.textContent = '...';
+                pageNumbers.appendChild(ellipsis);
+            }
+            
+            // Show pages around current page
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                addPageNumber(i);
+            }
+            
+            // Show ellipsis if current page is far from last page
+            if (currentPage < totalPages - 2 && totalPages > 3) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-1';
+                ellipsis.textContent = '...';
+                pageNumbers.appendChild(ellipsis);
+            }
+            
+            // Always show last page if there's more than one page
+            if (totalPages > 1) {
+                addPageNumber(totalPages);
+            }
+        }
+        
+        function addPageNumber(page) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `px-3 py-1 rounded-md text-sm ${
+                page === currentPage ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+            }`;
+            pageBtn.textContent = page;
+            pageBtn.addEventListener('click', () => {
+                currentPage = page;
+                renderInventoryTable();
+            });
+            pageNumbers.appendChild(pageBtn);
+        }
+
+        function filterItems() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const location = locationFilter.value;
+            const condition = conditionFilter.value;
+            const category = categoryFilter.value;
+            
+            const filteredData = inventoryData.filter(item => {
+                const matchesSearch = 
+                    item.id.toLowerCase().includes(searchTerm) ||
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.description.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    item.supplier.toLowerCase().includes(searchTerm);
+                
+                const matchesLocation = location === '' || item.location === location;
+                const matchesCondition = condition === '' || item.condition === condition;
+                const matchesCategory = category === '' || item.category === category;
+                
+                return matchesSearch && matchesLocation && matchesCondition && matchesCategory;
+            });
+            
+            currentPage = 1;
+            renderInventoryTable(filteredData);
+        }
+
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderInventoryTable();
+            }
+        }
+
+        function goToNextPage() {
+            const totalItemsCount = inventoryData.length;
+            if (currentPage * itemsPerPage < totalItemsCount) {
+                currentPage++;
+                renderInventoryTable();
+            }
+        }
+
+        function showModal(item = null) {
+            document.getElementById('modalTitle').textContent = item ? 'Edit Item' : 'Add New Item';
+            
+            if (item) {
+                document.getElementById('itemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemDescription').value = item.description;
+                document.getElementById('itemCategory').value = item.category;
+                document.getElementById('itemQuantity').value = item.quantity;
+                document.getElementById('itemUnit').value = item.unit || '';
+                document.getElementById('itemLocation').value = item.location;
+                document.getElementById('itemCondition').value = item.condition;
+                document.getElementById('itemPurchaseDate').value = item.purchaseDate || '';
+                document.getElementById('itemSupplier').value = item.supplier || '';
+                document.getElementById('itemNotes').value = item.notes || '';
+            } else {
+                document.getElementById('itemId').value = '';
+                itemForm.reset();
+                
+                // Generate new ID
+                if (inventoryData.length > 0) {
+                    const lastId = parseInt(inventoryData[inventoryData.length - 1].id.split('-')[1]);
+                    document.getElementById('itemName').value = `INV-${(lastId + 1).toString().padStart(4, '0')}`;
+                } else {
+                    document.getElementById('itemName').value = 'INV-1001';
+                }
+            }
+            
+            itemModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            itemModal.classList.add('hidden');
+        }
+
+        function hideQrModal() {
+            qrModal.classList.add('hidden');
+        }
+
+        function saveItemHandler() {
+            if (!itemForm.checkValidity()) {
+                itemForm.reportValidity();
+                return;
+            }
+            
+            const id = document.getElementById('itemId').value || generateId();
+            const item = {
+                id,
+                name: document.getElementById('itemName').value,
+                description: document.getElementById('itemDescription').value,
+                category: document.getElementById('itemCategory').value,
+                quantity: parseInt(document.getElementById('itemQuantity').value),
+                unit: document.getElementById('itemUnit').value,
+                location: document.getElementById('itemLocation').value,
+                condition: document.getElementById('itemCondition').value,
+                purchaseDate: document.getElementById('itemPurchaseDate').value,
+                supplier: document.getElementById('itemSupplier').value,
+                notes: document.getElementById('itemNotes').value,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            const existingIndex = inventoryData.findIndex(i => i.id === id);
+            
+            if (existingIndex !== -1) {
+                inventoryData[existingIndex] = item;
+            } else {
+                inventoryData.push(item);
+            }
+            
+            saveToLocalStorage();
+            hideModal();
+            renderInventoryTable();
+        }
+
+        function generateId() {
+            if (inventoryData.length === 0) return 'INV-1001';
+            
+            const lastId = parseInt(inventoryData[inventoryData.length - 1].id.split('-')[1]);
+            return `INV-${(lastId + 1).toString().padStart(4, '0')}`;
+        }
+
+        function editItem(id) {
+            const item = inventoryData.find(i => i.id === id);
+            if (item) {
+                showModal(item);
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                inventoryData = inventoryData.filter(item => item.id !== id);
+                saveToLocalStorage();
+                renderInventoryTable();
+            }
+        }
+
+        function generateQrCode(id) {
+            const item = inventoryData.find(i => i.id === id);
+            if (!item) return;
+            
+            qrItemName.textContent = item.name;
+            
+            const qrData = `Inventory Item\nID: ${item.id}\nName: ${item.name}\nCategory: ${item.category}\nLocation: ${item.location}`;
+            qrcode.clear();
+            qrcode.addData(qrData);
+            qrcode.make();
+            
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = '';
+            qrContainer.appendChild(qrcode.createSvgTag(4, 0));
+            
+            // Set download attributes
+            document.getElementById('downloadQrPng').setAttribute('data-id', id);
+            document.getElementById('downloadQrSvg').setAttribute('data-id', id);
+            
+            qrModal.classList.remove('hidden');
+        }
+
+        function downloadQrAsPng() {
+            const id = this.getAttribute('data-id');
+            const item = inventoryData.find(i => i.id === id);
+            if (!item) return;
+            
+            const qrData = `Inventory Item\nID: ${item.id}\nName: ${item.name}\nCategory: ${item.category}\nLocation: ${item.location}`;
+            qrcode.clear();
+            qrcode.addData(qrData);
+            qrcode.make();
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const svg = qrcode.createSvgTag(4, 0);
+            
+            // Create a temporary DOM element to parse SVG
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = svg;
+            const svgElement = tempDiv.firstChild;
+            
+            // Create an image from SVG
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = `QR_${item.id}_${item.name.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svgElement));
+        }
+
+        function downloadQrAsSvg() {
+            const id = this.getAttribute('data-id');
+            const item = inventoryData.find(i => i.id === id);
+            if (!item) return;
+            
+            const qrData = `Inventory Item\nID: ${item.id}\nName: ${item.name}\nCategory: ${item.category}\nLocation: ${item.location}`;
+            qrcode.clear();
+            qrcode.addData(qrData);
+            qrcode.make();
+            
+            const svg = qrcode.createSvgTag(4, 0);
+            
+            // Trigger download
+            const link = document.createElement('a');
+            link.download = `QR_${item.id}_${item.name.replace(/\s+/g, '_')}.svg`;
+            link.href = 'data:image/svg+xml;base64,' + btoa(svg);
+            link.click();
+        }
+
+        function exportToExcel() {
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Prepare data for export
+            const exportData = inventoryData.map(item => ({
+                'ID': item.id,
+                'Item Name': item.name,
+                'Description': item.description,
+                'Category': item.category,
+                'Quantity': item.quantity,
+                'Unit': item.unit || '',
+                'Location': item.location,
+                'Condition': item.condition,
+                'Purchase Date': item.purchaseDate,
+                'Supplier': item.supplier || '',
+                'Notes': item.notes || '',
+                'Last Updated': item.lastUpdated
+            }));
+            
+            // Create worksheet
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
+            
+            // Generate Excel file and download
+            XLSX.writeFile(wb, 'Inventory_Report.xlsx');
+        }
+
+        function exportToPDF() {
+            // Create new PDF document
+            const doc = new jsPDF({
+                orientation: 'landscape'
+            });
+            
+            // Set title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('Inventory Report', 14, 16);
+            
+            // Add date
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+            
+            // Prepare data for table
+            const columns = [
+                { header: 'ID', dataKey: 'id' },
+                { header: 'Item Name', dataKey: 'name' },
+                { header: 'Category', dataKey: 'category' },
+                { header: 'Quantity', dataKey: 'quantity' },
+                { header: 'Unit', dataKey: 'unit' },
+                { header: 'Location', dataKey: 'location' },
+                { header: 'Condition', dataKey: 'condition' }
+            ];
+            
+            const rows = inventoryData.map(item => ({
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                quantity: item.quantity,
+                unit: item.unit || '-',
+                location: item.location,
+                condition: item.condition
+            }));
+            
+            // Add table
+            doc.autoTable({
+                head: [columns.map(col => col.header)],
+                body: rows.map(row => columns.map(col => row[col.dataKey])),
+                startY: 30,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [79, 70, 229], // indigo-600
+                    textColor: 255,
+                    fontSize: 10
+                },
+                bodyStyles: {
+                    fontSize: 8
+                },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 40 },
+                    2: { cellWidth: 25 },
+                    3: { cellWidth: 15 },
+                    4: { cellWidth: 15 },
+                    5: { cellWidth: 25 },
+                    6: { cellWidth: 20 }
+                },
+                margin: { left: 14 }
+            });
+            
+            // Add page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, null, null, 'right');
+            }
+            
+            // Save PDF
+            doc.save('Inventory_Report.pdf');
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('inventoryData', JSON.stringify(inventoryData));
+        }
+    </script>
+</body>
+</html>
